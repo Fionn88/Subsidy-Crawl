@@ -37,9 +37,14 @@ headers = {'User-Agent': 'User-Agent:Mozilla/5.0 (Windows NT 10.0; Win64; x64) A
 def crawling_subsidy(url):
     subsidy_list = []
     category_list = []
-    response = requests.get(url , headers = headers)
+    response = requests.post(url , headers = headers)
     soup = BeautifulSoup(response.text, "html.parser")
-    titles = soup.find("div", class_= "simple-text title").getText() #津貼標題
+    titles = soup.find("div", class_= "simple-text title")
+    if not titles:
+        print("No information")
+        exit()
+    else:
+        titles = titles.getText()
     time.sleep(delay)
     #利用findAll爬津貼頁面下方所有內容，然後用for迴圈＆getText取文字值就好
     for contents_test in soup.findAll("div", class_= "css-tr", limit = 2):
