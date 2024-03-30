@@ -17,7 +17,7 @@ url_list = []
 subsidy_name_list = []
 organization_list = []
 #打開Claire爬好的網址檔案(記得修改檔案路徑)
-f = open('爬蟲練習/name_organ_url.txt','r',encoding="utf-8")
+f = open('name_organ_url.txt','r',encoding="utf-8")
 for line in f.readlines():
     subsidy = line.split("$$$")
     name = subsidy[0] #津貼名稱
@@ -96,7 +96,7 @@ def crawling_subsidy(url):
 today = datetime.date.today()
 crawling_content_date = today.strftime('%Y%m%d')
 
-#用網址List跑迴圈當作函式變數
+# 用網址List跑迴圈當作函式變數
 for u in url_list:
     #用變數分別來接def的tuple值
     serial_no, titles, category, organization_name, content_1_title , content_1, content_2_title, content_2, url = crawling_subsidy(u)

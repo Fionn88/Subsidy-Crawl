@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "subsidy-crawl"
+version = "0.1.0"
+description = ""
+authors = ["Yuan-Heng,Kuo <coco8802231225@gmail.com>"]
+readme = "README.md"
+packages = [{include = "subsidy_crawl"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+requests = "^2.31.0"
+bs4 = "^0.0.2"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
