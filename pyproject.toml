@@ -10,6 +10,8 @@ packages = [{include = "subsidy_crawl"}]
 python = "^3.10"
 requests = "^2.31.0"
 bs4 = "^0.0.2"
+browser-cookie3 = "^0.19.1"
+selenium = "^4.19.0"
 
 
 [build-system]
