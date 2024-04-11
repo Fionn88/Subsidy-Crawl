@@ -39,4 +39,4 @@ with SB(uc_cdp=True, guest_mode=True) as sb:
             
             link = subject.find_element(By.TAG_NAME, 'a').get_attribute('href')
 
-            print(f'{name}$$${organ_type}$$$https://www.gov.tw/{link}')
+            print(f'{name}$$${organ_type}$$${link}')
