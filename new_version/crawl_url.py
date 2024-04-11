@@ -12,6 +12,7 @@ with SB(uc_cdp=True, guest_mode=True) as sb:
     try:
         verify_success(sb)
     except Exception:
+        # When the code reaches this point, an exception occurs, preventing successful execution. We need an automated detection mechanism to keep the code running until success.
         if sb.assert_exact_text("www.gov.tw", "h1"):
             # <iframe src="https://challenges.cloudflare.com/cdn-cgi/challenge-platform/h/b/turnstile/if/ov2/av0/rcv0/0/jqouz/0x4AAAAAAADnPIDROrmt1Wwj/dark/normal" allow="cross-origin-isolated; fullscreen" sandbox="allow-same-origin allow-scripts allow-popups" id="cf-chl-widget-jqouz" tabindex="0" title="包含 Cloudflare 安全性查問的小工具" style="border: none; overflow: hidden; width: 300px; height: 65px;"></iframe>
             print("Click Again!")
@@ -26,12 +27,12 @@ with SB(uc_cdp=True, guest_mode=True) as sb:
     all_organ =  driver.find_elements('td.td_organ')
     for subject in all_subjects:
         name = subject.text
-        # regex = re.compile('.*津貼.*|.*補助.*|.*給付.*|.*紓困.*|.*獎助學金.*|.*補貼.*')
         match_result = re.match('.*津貼.*|.*補助.*|.*給付.*|.*紓困.*|.*獎助學金.*|.*補貼.*', name)
-        if match_result != None: # 符合上述關鍵字的標題才進入判斷
+        # Only titles that match the aforementioned keywords are considered for evaluation.
+        if match_result != None: 
             title_seq = all_subjects.index(subject)
             organ = (all_organ[title_seq])
-            # 判定機關屬於中央還是地方政府
+            # The determination of whether an organization belongs to the central or local government.
             try:
                 organ_type = re.match('.*縣政府|.*市政府', organ.text).group()
             except AttributeError:

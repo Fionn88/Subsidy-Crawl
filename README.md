@@ -28,13 +28,13 @@ poetry run python3 cookie.py
 
 - Using the cookies, you can successfully crawl.
 ```
-poetry run python3 crawl.py
+poetry run python3 crawl_test.py
 ```
 
-### method 2：Using SeleniumBase may bypass CloudFlare, as the package is different. Further research is needed to determine if crawling can be successfully done.
+### method 2：Using SeleniumBase may bypass CloudFlare.
 
-- The code still needs adjustment.
+- I have successfully crawled the information from the first page. The next step is to update the data to Google Sheet.
 ```
 cd new_version/
-poetry run python3 cloudflare_bypass.py
+poetry run python3 ceawl_url.py
 ```
