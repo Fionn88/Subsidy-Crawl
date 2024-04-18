@@ -13,6 +13,7 @@ bs4 = "^0.0.2"
 browser-cookie3 = "^0.19.1"
 selenium = "^4.19.0"
 seleniumbase = "^4.25.2"
+gspread = "^6.1.0"
 
 
 [build-system]
