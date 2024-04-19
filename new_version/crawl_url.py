@@ -1,4 +1,4 @@
-# 爬蟲
+# crawl
 from seleniumbase import SB
 from selenium.webdriver.common.by import By
 # Google Sheet API
@@ -12,6 +12,7 @@ import time
 import logging
 
 FORMAT = '%(asctime)s %(levelname)s:%(message)s'
+# 可變變數
 logging.basicConfig(level=logging.INFO, format=FORMAT)
 
 url_data = [
@@ -26,6 +27,7 @@ with SB(uc_cdp=True, guest_mode=True) as sb:
     sb.open("https://www.gov.tw/News3.aspx?n=2&sms=9037&page=1&PageSize=200")
     driver = sb.driver
     driver.minimize_window()
+    
     try:
         verify_success(sb)
     except Exception:
@@ -36,11 +38,7 @@ with SB(uc_cdp=True, guest_mode=True) as sb:
             # sb.click("span.mark")
             logging.error("Can Not Enter The WebSite")
             sys.exit(1)
-        try:
-            verify_success(sb)
-
-        except Exception:
-            raise Exception("Detected!")
+            # raise Exception("Detected!")
     
     logging.info("Passing through Cloudflare.")
         
@@ -70,14 +68,15 @@ with SB(uc_cdp=True, guest_mode=True) as sb:
     
     logging.info("Page 1 Completed")
     pages = driver.find_elements('ul.page')
-    # 1 2 3 4 ... 34 => ['1\n2\n3\n4\n', '\n34'] => '34' => 34
     if not pages:
         logging.error("Not found the page")
         sys.exit(1)
+    # 1 2 3 4 ... 34 => ['1\n2\n3\n4\n', '\n34'] => '34' => 34
     page = int(str(pages[-1].text).split('...')[-1].replace('\n',''))
     for index in range(2, page + 1):
         sb.open(f"https://www.gov.tw/News3.aspx?n=2&sms=9037&page={index}&PageSize=200")
         driver.minimize_window()
+
         all_subjects =  driver.find_elements('td.td_title')
         all_organ =  driver.find_elements('td.td_organ')
         if not all_subjects or not all_organ:
@@ -101,10 +100,11 @@ with SB(uc_cdp=True, guest_mode=True) as sb:
 
 
 scopes = ["https://www.googleapis.com/auth/spreadsheets"]
+# 可變變數
 creds = Credentials.from_service_account_file("credentials.json", scopes=scopes)
 client = gspread.authorize(creds)
 
-sheet_id = "1-iWW4nYbc5Kx8WvAImKNBAXpYCy4mXj4k9SMOZ0R-nU"
+sheet_id = "1-iWW4nYbc5Kx8WvAImKNBAXpYCy4mXj4k9SMOZ0R-nU" # 可變變數
 workbook = client.open_by_key(sheet_id)
 
 today = datetime.date.today()
