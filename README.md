@@ -33,7 +33,7 @@ poetry run python3 crawl_test.py
 
 ### method 2：Using SeleniumBase may bypass CloudFlare.
 
-- I have successfully crawled the information from the first page. The next step is to update the data to Google Sheet.
+- Through a comprehensive web scraping process, government data can be successfully written to a Google Sheet.
 ```
 cd new_version/
 poetry run python3 ceawl_url.py
