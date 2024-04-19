@@ -25,6 +25,7 @@ def verify_success(sb):
 with SB(uc_cdp=True, guest_mode=True) as sb:
     sb.open("https://www.gov.tw/News3.aspx?n=2&sms=9037&page=1&PageSize=200")
     driver = sb.driver
+    driver.minimize_window()
     try:
         verify_success(sb)
     except Exception:
@@ -76,6 +77,7 @@ with SB(uc_cdp=True, guest_mode=True) as sb:
     page = int(str(pages[-1].text).split('...')[-1].replace('\n',''))
     for index in range(2, page + 1):
         sb.open(f"https://www.gov.tw/News3.aspx?n=2&sms=9037&page={index}&PageSize=200")
+        driver.minimize_window()
         all_subjects =  driver.find_elements('td.td_title')
         all_organ =  driver.find_elements('td.td_organ')
         if not all_subjects or not all_organ:
