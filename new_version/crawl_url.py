@@ -10,10 +10,24 @@ import sys
 import datetime
 import time
 import logging
+import config
 
 FORMAT = '%(asctime)s %(levelname)s:%(message)s'
-# 可變變數
-logging.basicConfig(level=logging.INFO, format=FORMAT)
+
+if config.LOGGING_LEVEL == "DEBUG":
+    logging.basicConfig(level=logging.DEBUG, filename='Log.log', filemode='a',format=FORMAT)
+elif config.LOGGING_LEVEL == "INFO":
+    logging.basicConfig(level=logging.INFO, filename='Log.log', filemode='a',format=FORMAT)
+elif config.LOGGING_LEVEL == "WARNING":
+    logging.basicConfig(level=logging.WARNING, filename='Log.log', filemode='a',format=FORMAT)
+elif config.LOGGING_LEVEL == "ERROR":
+    logging.basicConfig(level=logging.ERROR, filename='Log.log', filemode='a',format=FORMAT)
+elif config.LOGGING_LEVEL == "CRITICAL":
+    logging.basicConfig(level=logging.CRITICAL, filename='Log.log', filemode='a',format=FORMAT)
+elif config.LOGGING_LEVEL == "PRINT":
+    logging.basicConfig(level=logging.INFO,format=FORMAT)
+else:
+    logging.basicConfig(level=logging.NOTSET, filename='Log.log', filemode='a',format=FORMAT)
 
 url_data = [
     ["津貼名稱","發布單位", "link"]
@@ -23,10 +37,9 @@ def verify_success(sb):
     sb.assert_exact_text("我的E政府", "h1", timeout = 8)
     sb.sleep(4)
 
-with SB(uc_cdp=True, guest_mode=True) as sb:
+with SB(uc_cdp=True, guest_mode=True, headless=True) as sb:
     sb.open("https://www.gov.tw/News3.aspx?n=2&sms=9037&page=1&PageSize=200")
     driver = sb.driver
-    driver.minimize_window()
     
     try:
         verify_success(sb)
@@ -45,7 +58,7 @@ with SB(uc_cdp=True, guest_mode=True) as sb:
     all_subjects =  driver.find_elements('td.td_title')
     all_organ =  driver.find_elements('td.td_organ')
     if not all_subjects or not all_organ:
-        logging.error("Not found the title or organ")
+        logging.error("Page 1 Not found the title or organ")
         sys.exit(1)
     
     logging.info("The web scraping process is about to begin.")
@@ -75,13 +88,12 @@ with SB(uc_cdp=True, guest_mode=True) as sb:
     page = int(str(pages[-1].text).split('...')[-1].replace('\n',''))
     for index in range(2, page + 1):
         sb.open(f"https://www.gov.tw/News3.aspx?n=2&sms=9037&page={index}&PageSize=200")
-        driver.minimize_window()
 
         all_subjects =  driver.find_elements('td.td_title')
         all_organ =  driver.find_elements('td.td_organ')
         if not all_subjects or not all_organ:
-            logging.error("Not found the title or organ")
-            sys.exit(1)
+            logging.error(f"Page {index} Not found the title or organ")
+            continue
 
         for subject in all_subjects:
             name = subject.text
@@ -100,11 +112,11 @@ with SB(uc_cdp=True, guest_mode=True) as sb:
 
 
 scopes = ["https://www.googleapis.com/auth/spreadsheets"]
-# 可變變數
-creds = Credentials.from_service_account_file("credentials.json", scopes=scopes)
+
+creds = Credentials.from_service_account_file(config.CREDENTIAL_SERVICE_ACCOUNT, scopes=scopes)
 client = gspread.authorize(creds)
 
-sheet_id = "1-iWW4nYbc5Kx8WvAImKNBAXpYCy4mXj4k9SMOZ0R-nU" # 可變變數
+sheet_id = config.SHEET_ID
 workbook = client.open_by_key(sheet_id)
 
 today = datetime.date.today()
