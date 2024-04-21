@@ -1,8 +1,10 @@
 # Install
 
 ## Run locally
-- This project requires permissions to access Google Sheets. You can refer to this [link](https://www.youtube.com/watch?v=zCEJurLGFRk&ab_channel=TechWithTim) for instructions on how to add credentials to your local machine name the file as you like, then add it to the current directory to change the environment variable name.
+- This project requires permissions to access Google Sheets. You can refer to this [link](https://www.youtube.com/watch?v=zCEJurLGFRk&ab_channel=TechWithTim) for instructions on how to add credentials to your local machine and name the file as you like, then add it to the current directory to change the environment variable name.
 - You can observe the execution status based on the `Log.log` file generated in the same folder.
+
+---
 
 - Create a file named '.env' within the project directory with the following contents:
 - Replace the contents of sheet_id to the ID of the worksheet where you want to write the data.
