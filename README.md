@@ -4,7 +4,7 @@ This is the web crawler for the [LINEBot_For_Subsidy_Search](https://github.com/
 
 The "old_version" represents the previously successful version of the crawler, serving as a record and backup.
 
-The "new_version" is the code that we are currently researching and developing.
+The "src" is the code that we are currently researching and developing.
 
 ## Getting Started and Documentation
 
@@ -22,7 +22,7 @@ https://www.gov.tw/
 - To close all Chrome tabs/windows.
 - Save the cookies to JSON.
 ```
-cd new_version/
+cd src/
 poetry run python3 cookie.py
 ```
 
@@ -31,10 +31,14 @@ poetry run python3 cookie.py
 poetry run python3 crawl_test.py
 ```
 
-### method 2：Using SeleniumBase may bypass CloudFlare.
+### method 2：Using SeleniumBase sometimes passes the Cloudflare validation, and sometimes it doesn't
 
-- Through a comprehensive web scraping process, government data can be successfully written to a Google Sheet.
 ```
-cd new_version/
+poetry install
+```
+
+- For detailed settings, please refer to the README.md under the src directory. The ceawl_url.py script will write to Google Sheet after crawling the government website.
+```
+cd src/
 poetry run python3 ceawl_url.py
 ```
