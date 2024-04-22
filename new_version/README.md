@@ -36,4 +36,4 @@ poetry run python3 crawl_url.py
 - I've written a simple zsh script to execute your test.sh in a for loop. Since using SeleniumBase sometimes passes the Cloudflare validation, and sometimes it doesn't, this can serve as a validation for your web scraper.
 
 - For example, if you want to execute it 10 times.
-> test.sh 10
+> ./test.sh 10
