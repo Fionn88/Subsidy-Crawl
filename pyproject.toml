@@ -4,7 +4,7 @@ version = "0.1.0"
 description = ""
 authors = ["Yuan-Heng,Kuo <coco8802231225@gmail.com>"]
 readme = "README.md"
-packages = [{include = "subsidy_crawl"}]
+packages = [{include = "Subsidy_Crawl"}]
 
 [tool.poetry.dependencies]
 python = "^3.10"

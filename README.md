@@ -42,3 +42,6 @@ poetry install
 cd src/
 poetry run python3 ceawl_url.py
 ```
+
+- Currently, the container is unable to bypass Cloudflare. For more details, please refer to the src/Makefile and src/Dockerfile.
+    - If you need to run it, you'll have to pull it to the root directory.
