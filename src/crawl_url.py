@@ -1,149 +1,58 @@
-# crawl
-from seleniumbase import SB
-from selenium.webdriver.common.by import By
-# Google Sheet API
-import gspread
-from google.oauth2.service_account import Credentials
-# system & regular expression
-import re
-import sys
-import datetime
+import requests
+from bs4 import BeautifulSoup
+import random
 import time
-import logging
-import config
+import re
+import datetime
 
-FORMAT = '%(asctime)s %(levelname)s:%(message)s'
-
-if config.LOGGING_LEVEL == "DEBUG":
-    logging.basicConfig(level=logging.DEBUG, filename='Log.log', filemode='a',format=FORMAT)
-elif config.LOGGING_LEVEL == "INFO":
-    logging.basicConfig(level=logging.INFO, filename='Log.log', filemode='a',format=FORMAT)
-elif config.LOGGING_LEVEL == "WARNING":
-    logging.basicConfig(level=logging.WARNING, filename='Log.log', filemode='a',format=FORMAT)
-elif config.LOGGING_LEVEL == "ERROR":
-    logging.basicConfig(level=logging.ERROR, filename='Log.log', filemode='a',format=FORMAT)
-elif config.LOGGING_LEVEL == "CRITICAL":
-    logging.basicConfig(level=logging.CRITICAL, filename='Log.log', filemode='a',format=FORMAT)
-elif config.LOGGING_LEVEL == "PRINT":
-    logging.basicConfig(level=logging.INFO,format=FORMAT)
-else:
-    logging.basicConfig(level=logging.NOTSET, filename='Log.log', filemode='a',format=FORMAT)
-
-url_data = [
-    ["津貼名稱","發布單位", "link"]
-]
-
-def verify_success(sb):
-    sb.assert_exact_text("我的E政府", "h1", timeout = 8)
-    sb.sleep(4)
-
-with SB(uc_cdp=True, guest_mode=True, headless=True) as sb:
-    sb.open("https://www.gov.tw/News3.aspx?n=2&sms=9037&page=1&PageSize=200")
-    driver = sb.driver
-    
-    try:
-        verify_success(sb)
-    except Exception:
-        # When the code reaches this point, an exception occurs, preventing successful execution. We need an automated detection mechanism to keep the code running until success.
-        if sb.assert_exact_text("www.gov.tw", "h1"):
-            # <iframe src="https://challenges.cloudflare.com/cdn-cgi/challenge-platform/h/b/turnstile/if/ov2/av0/rcv0/0/jqouz/0x4AAAAAAADnPIDROrmt1Wwj/dark/normal" allow="cross-origin-isolated; fullscreen" sandbox="allow-same-origin allow-scripts allow-popups" id="cf-chl-widget-jqouz" tabindex="0" title="包含 Cloudflare 安全性查問的小工具" style="border: none; overflow: hidden; width: 300px; height: 65px;"></iframe>
-            # sb.switch_to_frame('iframe[title="包含 Cloudflare 安全性查問的小工具"]')
-            # sb.click("span.mark")
-            logging.error("Can Not Enter The WebSite")
-            sys.exit(1)
-            # raise Exception("Detected!")
-    
-    logging.info("Passing through Cloudflare.")
-        
-    all_subjects =  driver.find_elements('td.td_title')
-    all_organ =  driver.find_elements('td.td_organ')
-    if not all_subjects or not all_organ:
-        logging.error("Page 1 Not found the title or organ")
-        sys.exit(1)
-    
-    logging.info("The web scraping process is about to begin.")
-    for subject in all_subjects:
-        name = subject.text
-        match_result = re.match('.*津貼.*|.*補助.*|.*給付.*|.*紓困.*|.*獎助學金.*|.*補貼.*', name)
-        # Only titles that match the aforementioned keywords are considered for evaluation.
-        if match_result != None: 
-            title_seq = all_subjects.index(subject)
-            organ = (all_organ[title_seq])
-            # The determination of whether an organization belongs to the central or local government.
-            try:
-                organ_type = re.match('.*縣政府|.*市政府', organ.text).group()
-            except AttributeError:
-                organ_type = '中央政府'
-            
-            link = subject.find_element(By.TAG_NAME, 'a').get_attribute('href')
-            
-            url_data.append([name,organ_type,link])
-    
-    logging.info("Page 1 Completed")
-    pages = driver.find_elements('ul.page')
-    if not pages:
-        logging.error("Not found the page")
-        sys.exit(1)
-    # 1 2 3 4 ... 34 => ['1\n2\n3\n4\n', '\n34'] => '34' => 34
-    page = int(str(pages[-1].text).split('...')[-1].replace('\n',''))
-    for index in range(2, page + 1):
-        sb.open(f"https://www.gov.tw/News3.aspx?n=2&sms=9037&page={index}&PageSize=200")
-
-        all_subjects =  driver.find_elements('td.td_title')
-        all_organ =  driver.find_elements('td.td_organ')
-        if not all_subjects or not all_organ:
-            logging.error(f"Page {index} Not found the title or organ")
-            continue
-
-        for subject in all_subjects:
-            name = subject.text
-            match_result = re.match('.*津貼.*|.*補助.*|.*給付.*|.*紓困.*|.*獎助學金.*|.*補貼.*', name)
-            if match_result != None: 
-                title_seq = all_subjects.index(subject)
-                organ = (all_organ[title_seq])
-                try:
-                    organ_type = re.match('.*縣政府|.*市政府', organ.text).group()
-                except AttributeError:
-                    organ_type = '中央政府'
-                    
-                link = subject.find_element(By.TAG_NAME, 'a').get_attribute('href')
-                url_data.append([name,organ_type,link])
-        logging.info(f"Page {index} Completed")
-
-
-scopes = ["https://www.googleapis.com/auth/spreadsheets"]
-
-creds = Credentials.from_service_account_file(config.CREDENTIAL_SERVICE_ACCOUNT, scopes=scopes)
-client = gspread.authorize(creds)
-
-sheet_id = config.SHEET_ID
-workbook = client.open_by_key(sheet_id)
-
+#設定爬蟲日期
 today = datetime.date.today()
-workSheetName = f"{today}-subsidy-url"
+crawling_date = today.strftime('%Y%m%d')
 
-worksheet_list = map(lambda x: x.title,workbook.worksheets())
+header = {'User-Agent' : 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36'}
+url_list = []
 
-dataLength = len(url_data)
-if workSheetName in worksheet_list:
-    sheet = workbook.worksheet(f"{today}-subsidy-url")
-else:
-    sheet = workbook.add_worksheet(title=f"{today}-subsidy-url", rows=dataLength, cols=4)
+#設定津貼爬蟲網址清單為url_crawling_今天日期.txt
+f = open(f'title_list_{crawling_date}.txt')
 
-logging.info(f"The {dataLength} data entries are ready to be written.")
-num_retries = 4
-for i, row in enumerate(url_data):
-    for j, value in enumerate(row):
-        sleep_time = 60
-        for _ in range(0, num_retries):
+
+def organ_type(pattern, text, none_value, match_value):
+    result = re.match(pattern, text)
+    
+    if result is None:
+        return none_value
+    else:
+        return result.group()
+
+#在申請專區爬蟲 (目前總共31頁) 
+for page in range (1, 32):
+    
+    #延遲時間避免被ban
+    delay_choices = [8, 5, 15, 19, 16, 11]  #延遲的秒數
+    delay = random.choice(delay_choices)  #隨機選取秒數
+    time.sleep(delay)  #延遲
+        
+    url = f'https://www.gov.tw/News3.aspx?n=2&sms=9037&page={page}&PageSize=200' # 指定網址
+    r = requests.get(url, headers=header) # 送請求、並將伺服器的回應存進 r 變數
+    soup = BeautifulSoup(r.text, 'html.parser') # 用BeautifulSoup解析回應的內容
+    all_subjects = soup.find_all('td', class_ = 'td_title') # 查找所有標題
+    all_organ = soup.find_all('td', class_= 'td_organ') # 查找所有發布機關
+    for subject in all_subjects:
+        name = subject.find('span', string = re.compile ('.*津貼.*|.*補助.*|.*給付.*|.*紓困.*|.*獎助學金.*|.*補貼.*')) 
+        if name != None: #符合上述關鍵字的標題才進入判斷
+            name_seq = all_subjects.index(subject) #先找到現在判斷的標題在所有標題的index
+            organ = (all_organ[name_seq]).find('span', class_ = 'place').text #再依標題的index找到機關的index，並取出機關名稱
+            #判定機關屬於中央還是地方政府
             try:
-                sheet.update_cell(i + 1, j + 1, value)
-            except:
-                logging.info(f"Wait me for {sleep_time} seconds...")
-                time.sleep(sleep_time)
-                sleep_time *= 1.5
-            else:
-                logging.info(f"The {i + 1} row {j + 1} col has been successfully written.")
-                break
+                organ_type = re.match('.*縣政府|.*市政府', organ).group()
+            except AttributeError :
+                organ_type = '中央政府' 
 
-logging.info(f"The {dataLength} data entries have been successfully written.")
+            name = name.text #把標題中的CSS去除
+            link = subject.find('a')['href'] #取得標題的連結
+
+            f.write(f'{name}$$${organ_type}$$$https://www.gov.tw/{link}\n')
+
+        else: #如果不符合關鍵字條件就繼續下一個迴圈
+            continue
+f.close()
