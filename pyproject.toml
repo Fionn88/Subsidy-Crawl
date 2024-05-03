@@ -15,6 +15,7 @@ selenium = "^4.19.0"
 seleniumbase = "^4.25.2"
 gspread = "^6.1.0"
 python-dotenv = "^1.0.1"
+flake8 = "^7.0.0"
 
 
 [build-system]
