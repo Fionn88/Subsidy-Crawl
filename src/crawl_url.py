@@ -1,6 +1,5 @@
 # crawl
 from seleniumbase import SB
-from selenium import webdriver
 from selenium.webdriver.common.by import By
 # Google Sheet API
 import gspread
@@ -11,7 +10,7 @@ import sys
 import datetime
 import time
 import logging
-from . import config
+import config
 
 FORMAT = '%(asctime)s %(levelname)s:%(message)s'
 
@@ -33,8 +32,6 @@ else:
 url_data = [
     ["津貼名稱","發布單位", "link"]
 ]
-
-webdriver.chrome.driver = config.DRIVER_LOCATION
 
 def verify_success(sb):
     sb.assert_exact_text("我的E政府", "h1", timeout = 8)

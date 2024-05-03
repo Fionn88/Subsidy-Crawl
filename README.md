@@ -2,8 +2,6 @@
 
 This is the web crawler for the [LINEBot_For_Subsidy_Search](https://github.com/Fionn88/LineBot-Subsidy) project. Currently, we are encountering anti-crawling mechanisms, and the code is still under development.
 
-The "old_version" represents the previously successful version of the crawler, serving as a record and backup.
-
 The "src" is the code that we are currently researching and developing.
 
 ## Getting Started and Documentation
@@ -22,7 +20,7 @@ https://www.gov.tw/
 - To close all Chrome tabs/windows.
 - Save the cookies to JSON.
 ```
-cd src/
+cd integrations/Docker/
 poetry run python3 cookie.py
 ```
 
@@ -43,5 +41,5 @@ cd src/
 poetry run python3 ceawl_url.py
 ```
 
-- Currently, the container is unable to bypass Cloudflare. For more details, please refer to the src/Makefile and src/Dockerfile.
+- Currently, the container is unable to bypass Cloudflare. For more details, please refer to the integrations/Makefile and integrations/Dockerfile.
     - If you need to run it, you'll have to pull it to the root directory.
