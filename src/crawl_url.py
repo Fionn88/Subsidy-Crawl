@@ -12,7 +12,7 @@ import time
 import logging
 import config
 
-FORMAT = '%(asctime)s %(levelname)s:%(message)s'
+FORMAT = '%(asctime)s %(filename)s %(levelname)s:%(message)s'
 
 if config.LOGGING_LEVEL == "DEBUG":
     logging.basicConfig(level=logging.DEBUG, filename='Log.log',
@@ -155,9 +155,9 @@ worksheet_list = map(lambda x: x.title, workbook.worksheets())
 
 dataLength = len(url_data)
 if workSheetName in worksheet_list:
-    sheet = workbook.worksheet(f"{today}-subsidy-url")
+    sheet = workbook.worksheet(workSheetName)
 else:
-    sheet = workbook.add_worksheet(title=f"{today}-subsidy-url",
+    sheet = workbook.add_worksheet(title=workSheetName,
                                    rows=dataLength, cols=4)
 
 logging.info(f"The {dataLength} data entries are ready to be written.")
