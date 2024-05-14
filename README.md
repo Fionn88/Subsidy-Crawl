@@ -43,3 +43,8 @@ poetry run python3 ceawl_url.py
 
 - Currently, the container is unable to bypass Cloudflare. For more details, please refer to the integrations/Docker/Makefile and integrations/Docker/Dockerfile.
     - If you need to run it, you'll have to pull it to the root directory.
+
+
+## Licensing
+
+Subsidy-Crawl is under the [MIT license](https://github.com/Fionn88/Subsidy-Crawl/blob/dev/LICENSE).
