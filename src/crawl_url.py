@@ -1,39 +1,13 @@
 # crawl
 from seleniumbase import SB
 from selenium.webdriver.common.by import By
-# Google Sheet API
-import gspread
-from google.oauth2.service_account import Credentials
 # system & regular expression
 import re
 import sys
 import datetime
 import time
 import logging
-import config
-
-FORMAT = '%(asctime)s %(filename)s %(levelname)s:%(message)s'
-
-if config.LOGGING_LEVEL == "DEBUG":
-    logging.basicConfig(level=logging.DEBUG, filename='Log.log',
-                        filemode='a', format=FORMAT)
-elif config.LOGGING_LEVEL == "INFO":
-    logging.basicConfig(level=logging.INFO, filename='Log.log',
-                        filemode='a', format=FORMAT)
-elif config.LOGGING_LEVEL == "WARNING":
-    logging.basicConfig(level=logging.WARNING, filename='Log.log',
-                        filemode='a', format=FORMAT)
-elif config.LOGGING_LEVEL == "ERROR":
-    logging.basicConfig(level=logging.ERROR, filename='Log.log',
-                        filemode='a', format=FORMAT)
-elif config.LOGGING_LEVEL == "CRITICAL":
-    logging.basicConfig(level=logging.CRITICAL, filename='Log.log',
-                        filemode='a', format=FORMAT)
-elif config.LOGGING_LEVEL == "PRINT":
-    logging.basicConfig(level=logging.INFO, format=FORMAT)
-else:
-    logging.basicConfig(level=logging.NOTSET, filename='Log.log',
-                        filemode='a', format=FORMAT)
+import sheet_config
 
 url_data = [
     ["津貼名稱", "發布單位", "link"]
@@ -133,31 +107,22 @@ with SB(uc_cdp=True, guest_mode=True, headless=True) as sb:
                 except AttributeError:
                     organ_type = '中央政府'
 
-                link = subject.find_element
-                (By.TAG_NAME, 'a').get_attribute('href')
+                link = subject.find_element(By.TAG_NAME, 'a'). \
+                    get_attribute('href')
                 url_data.append([name, organ_type, link])
         logging.info(f"Page {index} Completed")
 
 
-scopes = ["https://www.googleapis.com/auth/spreadsheets"]
-
-creds = Credentials.from_service_account_file(
-    config.CREDENTIAL_SERVICE_ACCOUNT, scopes=scopes)
-client = gspread.authorize(creds)
-
-sheet_id = config.SHEET_ID
-workbook = client.open_by_key(sheet_id)
-
 today = datetime.date.today()
 workSheetName = f"{today}-subsidy-url"
 
-worksheet_list = map(lambda x: x.title, workbook.worksheets())
+worksheet_list = map(lambda x: x.title, sheet_config.workbook.worksheets())
 
 dataLength = len(url_data)
 if workSheetName in worksheet_list:
-    sheet = workbook.worksheet(workSheetName)
+    sheet = sheet_config.workbook.worksheet(workSheetName)
 else:
-    sheet = workbook.add_worksheet(title=workSheetName,
+    sheet = sheet_config.workbook.add_worksheet(title=workSheetName,
                                    rows=dataLength, cols=4)
 
 logging.info(f"The {dataLength} data entries are ready to be written.")
