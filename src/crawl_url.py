@@ -20,7 +20,7 @@ def verify_success(sb):
 
 
 with SB(uc_cdp=True, guest_mode=True, headless=True) as sb:
-    sb.open("https://www.gov.tw/News3.aspx?n=2&sms=9037&page=1&PageSize=200")
+    sb.open("https://www.gov.tw/News3_2")
     driver = sb.driver
 
     try:
@@ -58,6 +58,7 @@ with SB(uc_cdp=True, guest_mode=True, headless=True) as sb:
         sys.exit(1)
 
     logging.info("The web scraping process is about to begin.")
+    driver.find_element(By.XPATH, "//*[@id='pageselect']/option[@value='200']").click()
     for subject in all_subjects:
         name = subject.text
         match_result = re.match('.*津貼.*|.*補助.*|.*給付.* \
@@ -86,9 +87,20 @@ with SB(uc_cdp=True, guest_mode=True, headless=True) as sb:
     # 1 2 3 4 ... 34 => ['1\n2\n3\n4\n', '\n34'] => '34' => 34
     page = int(str(pages[-1].text).split('...')[-1].replace('\n', ''))
     for index in range(2, page + 1):
-        sb.open(f"https://www.gov.tw/News3.aspx? \
-                n=2&sms=9037&page={index}&PageSize=200")
-
+        if index == 25:
+            driver.refresh()
+            time.sleep(5)
+            driver.find_element(By.XPATH, "//*[@id='pageselect']/option[@value='200']").click()
+            driver.find_element(By.XPATH ,"//*[@id='CCMS_Content']/div/div/div/div[2]/div/div/div/ul[1]/li[4]/a").click()
+            driver.find_element(By.XPATH ,"//*[@id='CCMS_Content']/div/div/div/div[2]/div/div/div/ul[1]/li[7]/a").click()
+            time.sleep(5)
+            for _ in range(6):
+                driver.find_element(By.XPATH ,"//*[@id='CCMS_Content']/div/div/div/div[2]/div/div/div/ul[1]/li[9]/a").click()
+        elif index > 6:
+            driver.find_element(By.XPATH ,"//*[@id='CCMS_Content']/div/div/div/div[2]/div/div/div/ul[1]/li[7]/a").click()
+        else:
+            driver.find_element(By.XPATH ,f"//*[@id='CCMS_Content']/div/div/div/div[2]/div/div/div/ul[1]/li[{index}]/a").click()
+        
         all_subjects = driver.find_elements('td.td_title')
         all_organ = driver.find_elements('td.td_organ')
         if not all_subjects or not all_organ:
@@ -111,7 +123,6 @@ with SB(uc_cdp=True, guest_mode=True, headless=True) as sb:
                     get_attribute('href')
                 url_data.append([name, organ_type, link])
         logging.info(f"Page {index} Completed")
-
 
 today = datetime.date.today()
 workSheetName = f"{today}-subsidy-url"
