@@ -8,6 +8,12 @@ load_dotenv()
 LOGGING_LEVEL = os.environ.get("LOGGING_LEVEL")
 SHEET_ID = os.environ.get("SHEET_ID")
 CREDENTIAL_SERVICE_ACCOUNT = os.environ.get("CREDENTIAL_SERVICE_ACCOUNT")
+DB_HOST = os.environ.get("DB_HOST")
+DB_PORT = os.environ.get("DB_PORT")
+DB_USER = os.environ.get("DB_USER")
+DB_PASSWORD = os.environ.get("DB_PASSWORD")
+DB_SCHEMA = os.environ.get("DB_SCHEMA")
+DB_TABLE = os.environ.get("DB_TABLE")
 
 FORMAT = '%(asctime)s %(filename)s %(levelname)s:%(message)s'
 
